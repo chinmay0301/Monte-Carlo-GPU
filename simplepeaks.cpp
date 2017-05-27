@@ -34,7 +34,7 @@ int main() {
 		while(max(sigma[0],sigma[1]) > 0.00001) {
 				normal_distribution<double> distribution_0(mu[0],sigma[0]);
 				normal_distribution<double> distribution_1(mu[1],sigma[1]);
-				for (long int i=0;i<100;i++)
+				for (long int i=0;i<N;i++)
 				{
 						m(i,0) = distribution_0(generator); 
 						m(i,1) = distribution_1(generator);
@@ -71,11 +71,11 @@ int main() {
 
 		}
 	
-		for ( it = row_list.begin(); it!= row_list.end(); it++) 
+		/*for ( it = row_list.begin(); it!= row_list.end(); it++) 
 
 	 		{
 					//cout<<(*it).first<<"\n"; 
 			} 
-
+*/ 
 		return 0; 
 }
