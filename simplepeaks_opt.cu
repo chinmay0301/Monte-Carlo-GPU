@@ -31,7 +31,7 @@ s_max = -500000;
 
 curandState_t state; 
 
-for (int i=0; i<4096; i++)
+for (int i=0; i<250; i++)
 {
  curand_init(seed, tid, 0, &state); 
  x0_ker = curand_normal(&state)*sigma[0] + mu[0];
@@ -48,8 +48,8 @@ for (int i=0; i<4096; i++)
 
 
 
-if (tid < 250000)
-{
+//if (tid < 10240)
+//{
 
 //curand_init(seed, tid, 0, &state); 
 //x_0[tid] = curand_normal(&state)*sigma[0] + mu[0]; 
@@ -58,8 +58,8 @@ if (tid < 250000)
 sample[tid] = s_max;
 x_0[tid] = x0_max;
 x_1[tid] = x1_max;
-tid+= blockDim.x + gridDim.x;
-} 
+//tid+= blockDim.x + gridDim.x;
+//} 
 __syncthreads();
 
 }
@@ -69,8 +69,8 @@ int main ()
 {
 
 
- int threads = 512;
- int blocks = 20;
+ int threads = 100;
+ int blocks = 103;
 double *dev_mu, *dev_sigma, *dev_x0, *dev_x1, *dev_sample; 
 
 double mu[2]= {-3,-3};
@@ -121,7 +121,7 @@ for ( int i =threads*blocks*0.9; i<threads*blocks; i++)
 sigma[0] = sqrt(sigma0/double((0.1*threads*blocks))); 
 sigma[1] = sqrt(sigma1/double((0.1*threads*blocks)));
 
-cout<<sample_0[0]<<" "<<sigma[0]<<" "<<sigma[1]<<" "<<mu[0]<<" "<<mu[1]<<"\n"; 
+cout<<sample_0[10239]<<" "<<sigma[0]<<" "<<sigma[1]<<" "<<mu[0]<<" "<<mu[1]<<"\n"; 
 }
 return 0;
 }
