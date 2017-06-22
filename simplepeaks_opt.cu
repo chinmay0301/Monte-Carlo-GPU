@@ -30,10 +30,10 @@ double x0_max, x1_max;
 s_max = -500000; 
 
 curandState_t state; 
-
-for (int i=0; i<250; i++)
+curand_init(seed, tid, 0, &state); 
+for (int i=0; i<320; i++)
 {
- curand_init(seed, tid, 0, &state); 
+ //curand_init(seed, tid, 0, &state); 
  x0_ker = curand_normal(&state)*sigma[0] + mu[0];
  x1_ker = curand_normal(&state)*sigma[1] + mu[1]; 
  float x[2] = {x0_ker, x1_ker};
@@ -70,7 +70,7 @@ int main ()
 
 
  int threads = 100;
- int blocks = 103;
+ int blocks = 100;
 double *dev_mu, *dev_sigma, *dev_x0, *dev_x1, *dev_sample; 
 
 double mu[2]= {-3,-3};
@@ -121,7 +121,7 @@ for ( int i =threads*blocks*0.9; i<threads*blocks; i++)
 sigma[0] = sqrt(sigma0/double((0.1*threads*blocks))); 
 sigma[1] = sqrt(sigma1/double((0.1*threads*blocks)));
 
-cout<<sample_0[10239]<<" "<<sigma[0]<<" "<<sigma[1]<<" "<<mu[0]<<" "<<mu[1]<<"\n"; 
+cout<<sample_0[9]<<" "<<sigma[0]<<" "<<sigma[1]<<" "<<mu[0]<<" "<<mu[1]<<"\n"; 
 }
 return 0;
 }
