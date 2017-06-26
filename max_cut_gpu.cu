@@ -78,24 +78,27 @@ int main()
 	double arr_zero[6] = {0,0,0,0,0,0};
         MatrixXd m = MatrixXd::Zero(6,6); 
         
+	int threads = 250;
+	int blocks = 10; 
 	m(0,1) = 100;
 	m(2,3) = 150;
 	m(4,1) = 20; 
-        
+        double err;    
 	double *m_host_data = m.data();
 	//double host_data[36]; 
 	
-	for(int i=0; i<36; i++) 
-           host_data[i] = m_host_data[i];       
+//	for(int i=0; i<36; i++) 
+   //        host_data[i] = m_host_data[i];       
 //        double *m_test_data; 
        
   //   cudaMemcpyToSymbol("m_data", &host_data[0], sizeof(host_data), size_t(0), cudaMemcpyHostToDevice);
    //    cudaMemcpyFromSymbol(&m_test_data, "m_data", sizeof(m), cudaMemcpyDeviceToHost);        
        int *dev_out, *dev_n1, *dev_n2, *dev_n3, *dev_n4, *dev_n5, *dev_n6; 
        double *dev_p_arr; 
-       int host_out[1000],host_n1[1000], host_n2[1000], host_n3[1000], host_n4[1000], host_n5[1000], host_n6[1000]; 
-       int host_out1[1000]; 
+       int host_out[threads*blocks],host_n1[threads*blocks], host_n2[threads*blocks], host_n3[threads*blocks], host_n4[threads*blocks], host_n5[threads*blocks], host_n6[threads*blocks]; 
+       int host_out1[threads*blocks]; 
        double p_arr[6]={0.5,0.5,0.5,0.5,0.5,0.5}; 
+       double p[6]; 
        
        cudaMalloc( (void**)&dev_n1, sizeof(host_n1));
        cudaMalloc( (void**)&dev_n2, sizeof(host_n1));
@@ -111,7 +114,7 @@ int main()
 
        cudaMemcpy(dev_p_arr, &p_arr, sizeof(p_arr), cudaMemcpyHostToDevice); 
        
-       max_cut<<<10,100>>>(time(NULL), dev_p_arr, dev_out, dev_n1, dev_n2, dev_n3, dev_n4, dev_n5, dev_n6);
+       max_cut<<<blocks,threads>>>(time(NULL), dev_p_arr, dev_out, dev_n1, dev_n2, dev_n3, dev_n4, dev_n5, dev_n6);
        
        cudaMemcpy(&host_out, dev_out, sizeof(host_n1), cudaMemcpyDeviceToHost); 
        cudaMemcpy(&host_out1, dev_out, sizeof(host_n1), cudaMemcpyDeviceToHost); 
@@ -122,36 +125,47 @@ int main()
        cudaMemcpy(&host_n5, dev_n5, sizeof(host_n1), cudaMemcpyDeviceToHost);
        cudaMemcpy(&host_n6, dev_n6, sizeof(host_n1), cudaMemcpyDeviceToHost);
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n1); 
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n1); 
        memcpy(host_out, host_out1, sizeof(host_out)); 
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n2);
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n2);
        memcpy(host_out, host_out1, sizeof(host_out));
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n3);
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n3);
        memcpy(host_out, host_out1, sizeof(host_out));
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n4);
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n4);
        memcpy(host_out, host_out1, sizeof(host_out));
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n5);
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n5);
        memcpy(host_out, host_out1, sizeof(host_out));
        
-       thrust::sort_by_key(host_out, host_out+1000, host_n6);
+       thrust::sort_by_key(host_out, host_out+threads*blocks, host_n6);
        memcpy(host_out, host_out1, sizeof(host_out));
        
+       memcpy(p, p_arr, sizeof(p_arr)); 
        memcpy(p_arr, arr_zero, sizeof(arr_zero)); 
-       
-	        for(int i = 900; i<1000; i++)
+	        for(int i = 0.9*threads*blocks; i<threads*blocks; i++)
                {
-		       p_arr[0]+= host_n1[i]/100.0; 
-		       p_arr[1]+= host_n2[i]/100.0;
-		       p_arr[2]+= host_n3[i]/100.0;
-		       p_arr[3]+= host_n4[i]/100.0;
-		       p_arr[4]+= host_n5[i]/100.0;
-                       p_arr[5]+= host_n6[i]/100.0;
+		       p_arr[0]+= host_n1[i]/double(0.1*threads*blocks); 
+		       p_arr[1]+= host_n2[i]/double(0.1*threads*blocks);
+		       p_arr[2]+= host_n3[i]/double(0.1*threads*blocks);
+		       p_arr[3]+= host_n4[i]/double(0.1*threads*blocks);
+		       p_arr[4]+= host_n5[i]/double(0.1*threads*blocks);
+                       p_arr[5]+= host_n6[i]/double(0.1*threads*blocks);
 	       }
-      	     cout<<host_n1[999]<< " "<<host_n2[999]<<" "<<host_n3[999]<<" "<<host_n4[999]<<" "<<host_n5[999]<<" "<<host_n6[999]<<" "<<host_out[999]<<"\n";
+      	     
+		err = 0; 
+		for(int i=0;i<6;i++)
+		     err += pow((p[i]-p_arr[i]),2);
+	
+		      if(sqrt(err)<1E-4)
+		         break; 
+		        else
+	                cout<<err<<" "; 
+
+
+		cout<<host_n1[threads*blocks-1]<< " "<<host_n2[threads*blocks-1]<<" "<<host_n3[threads*blocks-1]<<" "<<host_n4[threads*blocks-1]<<" "<<host_n5[threads*blocks-1]<<" "<<host_n6[threads*blocks-1]<<" "<<host_out[threads*blocks-1]<<"\n";
              cout<<p_arr[0]<<" "<<p_arr[1]<<" "<<p_arr[2]<<" "<<p_arr[3]<<" "<<p_arr[4]<<" "<<p_arr[5]<<"\n"; 
 	       //cout<<host_data[i]<<" "; 
        }

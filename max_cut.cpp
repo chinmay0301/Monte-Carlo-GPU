@@ -30,7 +30,7 @@ return out;
 
 int main()
 {   
-        int N = 10000;
+        int N = 75000;
 	m(0,1) = 609; 
         m(0,2) = 0;
      //	m(1,0) = 0;
@@ -103,7 +103,14 @@ double p_upd[6]={0,0,0,0,0,0};
 
 for(int i=0; i<6; i++)
 p_upd[i] = 6*p_upd[i]/double((*it).second.size()); 
+double err = 0;
+for(int i=0;i<6;i++)
+err += pow((p[i]-p_upd[i]),2);
 
+if(sqrt(err)<1E-4)
+	break; 
+	else
+	cout<<err<<" "; 
 for(int i=0; i<6; i++)
 p[i]=p_upd[i]; 
 

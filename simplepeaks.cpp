@@ -22,7 +22,7 @@ double S(MatrixXd x)
 
 int main() {
 
-		const long int N = 100000;
+		long int N = 320000;
 		MatrixXd m(N,2);  
 		MatrixXd s_inp(1,2); 
 		default_random_engine generator;  
@@ -69,13 +69,13 @@ int main() {
 				mu[0]=mu0;mu[1]=mu1;sigma[0]=sigma0;sigma[1]=sigma1; 
 				cout<<mu0<<" "<<mu1<<" "<<sigma0<<" "<<sigma1<<"\n";
 
-		}
-	
-		/*for ( it = row_list.begin(); it!= row_list.end(); it++) 
+		} 
+	          cout<<"Output max is " << s[0]; 
+		for ( it = row_list.begin(); it!= row_list.end(); it++) 
 
 	 		{
 					//cout<<(*it).first<<"\n"; 
 			} 
-*/ 
+
 		return 0; 
 }
